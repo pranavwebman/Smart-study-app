@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#4CAF50"/>
+  <title>📚 Study Timer</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon-192.png" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #e8f5e9;
+      color: #2e7d32;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      margin-top: 40px;
+    }
+    button {
+      font-size: 24px;
+      padding: 15px 30px;
+      margin-top: 40px;
+      border: none;
+      background-color: #4CAF50;
+      color: white;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+    button:active {
+      background-color: #388E3C;
+    }
+    p {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>⏳ Study Timer</h1>
+  <button onclick="toggleTimer()">Start Study Session</button>
+  <p id="status">Timer not started</p>
+
+  <script>
+    let timerRunning = false;
+    let studyInterval, breakInterval;
+
+    function toggleTimer() {
+      if (!timerRunning) {
+        timerRunning = true;
+        document.querySelector("button").innerText = "Stop Session";
+        startStudySession();
+      } else {
+        timerRunning = false;
+        clearTimeout(studyInterval);
+        clearTimeout(breakInterval);
+        document.querySelector("button").innerText = "Start Study Session";
+        document.getElementById("status").innerText = "Timer stopped";
+      }
+    }
+
+    function startStudySession() {
+      document.getElementById("status").innerText = "📖 Studying for 15 minutes...";
+      notify("Study Time Started!", "Focus for 15 minutes.");
+      studyInterval = setTimeout(() => {
+        startBreak();
+      }, 15 * 60 * 1000); // 15 minutes
+    }
+
+    function startBreak() {
+      if (!timerRunning) return;
+      document.getElementById("status").innerText = "☕ Break time for 5 minutes...";
+      notify("Break Time!", "Relax for 5 minutes.");
+      breakInterval = setTimeout(() => {
+        startStudySession();
+      }, 5 * 60 * 1000); // 5 minutes
+    }
+
+    function notify(title, body) {
+      if (Notification.permission === "granted") {
+        new Notification(title, { body });
+      } else if (Notification.permission !== "denied") {
+        Notification.requestPermission().then(permission => {
+          if (permission === "granted") {
+            new Notification(title, { body });
+          }
+        });
+      }
+    }
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
+</body>
+  </html>
